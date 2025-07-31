@@ -8,12 +8,82 @@ import tifffile
 import numpy as np
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QFileDialog, QLineEdit, QSlider, QTabWidget, QMessageBox, QSpinBox
+    QLabel, QFileDialog, QLineEdit, QSlider, QTabWidget, QMessageBox, QSpinBox, QMainWindow
 )
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QPixmap, QImage, QPalette, QColor
+from PyQt5.QtGui import QPixmap, QImage, QPalette, QColor, QPainter
 
 import scene_imager as si
+
+def get_file_at_alphebetical_index (directory, index=0):
+    # Get all entries and sort them alphabetically
+    all_items = sorted(os.listdir(directory))
+
+    # Get the first item, if it exists
+    if all_items:
+        return os.path.join(directory, all_items[index])
+    else:
+        return None
+
+class ImageWindow(QMainWindow):
+    def __init__(self, file_path):
+        super().__init__()
+        self.setWindowTitle("Image Viewer")
+
+        self.image_label = QLabel(self)
+        self.image_label.setAlignment(Qt.AlignCenter)
+        self.setCentralWidget(self.image_label)
+        
+        self.update_displayed_image(file_path)
+        self.showFullScreen()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_F11:
+            if self.isFullScreen():
+                self.showNormal()
+            else:
+                self.showFullScreen()
+        # Call the base class implementation to ensure other key events are processed
+        super().keyPressEvent(event)
+
+    def resizeEvent(self, event):
+        self.update_displayed_image()
+
+    def update_displayed_image(self, file_path=None):
+        if file_path:
+            self.original_pixmap = QPixmap(file_path)
+
+        # Get current window size
+        window_size = self.image_label.size()
+
+        # Scale image with aspect ratio preserved
+        scaled_pixmap = self.original_pixmap.scaled(
+            window_size,
+            Qt.KeepAspectRatio,
+            Qt.SmoothTransformation
+        )
+
+        # Create black background pixmap
+        black_bg = QPixmap(window_size)
+        black_bg.fill(Qt.black)
+
+        # Draw the scaled image centered onto black background
+        painter = QPixmap(black_bg)
+        painter.fill(Qt.black)
+
+        # Compute offsets to center the image
+        x_offset = (window_size.width() - scaled_pixmap.width()) // 2
+        y_offset = (window_size.height() - scaled_pixmap.height()) // 2
+
+        # paint the image at offset using QPainter
+        final_pixmap = QPixmap(window_size)
+        final_pixmap.fill(Qt.black)
+        painter = QPainter(final_pixmap)
+        painter.drawPixmap(x_offset, y_offset, scaled_pixmap)
+        painter.end()
+
+        self.image_label.setPixmap(final_pixmap)
+
 
 class UnifiedCameraGUI(QWidget):
     def __init__(self):
@@ -270,6 +340,12 @@ class UnifiedCameraGUI(QWidget):
         if folder:
             self.dataset_input.setText(folder)
             self.dataset_folder = folder
+            self.open_image_window()
+
+    def open_image_window(self):
+        first_image = get_file_at_alphebetical_index(self.dataset_folder)
+        self.image_window = ImageWindow(first_image)  # Replace with your image path
+        self.image_window.show()
 
     def load_dark_tl(self):
         path, _ = QFileDialog.getOpenFileName(self, "Select TL Dark", "", "*.npy")
@@ -299,11 +375,39 @@ class UnifiedCameraGUI(QWidget):
             self.update_status("Thorlabs capture failed", True)
 
     def capture_auto_image(self):
+
+        if self.working_on_image:
+            return
+        
+        self.working_on_image = True
+
+        if self.image_window:
+            file_name = get_file_at_alphebetical_index(self.dataset_folder, self.auto_capture_image_index)
+            if not file_name:
+                self.auto_timer.stop()
+                print(f"END OF FILES. IMAGED {self.auto_capture_image_index + 1} FILES")
+                return
+            self.image_window.update_displayed_image(file_name)  
+        self.auto_capture_image_index += 1
+
+        MAX_AUTO_EXPOSE_ATTEMPTS = 2
+        auto_expose_attempts = 0
+        while not self.auto_expose_both():
+            auto_expose_attempts += 1
+            print(f"Auto Expose Attempt {auto_expose_attempts}")
+            if auto_expose_attempts >= MAX_AUTO_EXPOSE_ATTEMPTS:
+                print(f"Couldn't find appropriate exposure time! Skipping this file")
+                return
+            
         self.capture_manual_image()
+
+        self.working_on_image = False
 
     def start_auto_capture(self):
         try:
             interval = int(self.interval_input.text())
+            self.working_on_image = False
+            self.auto_capture_image_index = 0
             self.auto_timer.start(interval * 1000)
             self.update_status("Auto capture started", False)
         except ValueError:

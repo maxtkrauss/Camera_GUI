@@ -1,7 +1,7 @@
 import os
-os.add_dll_directory(r"C:\\Users\\menon\\Documents\\FTDI_drivers\\amd64")
+os.add_dll_directory(r"C:\Users\Public\Documents\Cubert SDKs\FTDI_drivers\amd64")
 os.add_dll_directory(r"C:\\Program Files\\Cuvis\\bin")
-os.add_dll_directory(r"C:\\Users\\menon\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cuvis_il")
+os.add_dll_directory(r"C:\Users\Public\Documents\Cubert SDKs\cuvis_il")
 os.environ["CUVIS"] = r"C:\\Program Files\\Cuvis"
 
 import pylablib as pll
