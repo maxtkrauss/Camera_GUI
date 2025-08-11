@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
     QLabel, QFileDialog, QLineEdit, QSlider, QTabWidget, QMessageBox, QSpinBox, QMainWindow
 )
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, QSemaphore
 from PyQt5.QtGui import QPixmap, QImage, QPalette, QColor, QPainter
 
 import scene_imager as si
@@ -102,6 +102,8 @@ class UnifiedCameraGUI(QWidget):
         self.dataset_folder = None
         self.auto_timer = QTimer()
         self.auto_timer.timeout.connect(self.capture_auto_image)
+
+        self.auto_timer_semph = QSemaphore(1)
 
         # Build GUI
         self.init_ui()
@@ -224,7 +226,7 @@ class UnifiedCameraGUI(QWidget):
             self.update_status("Calculating Cubert exposure...", True)
             
             # Run auto exposure for Cubert
-            new_exposure = si.auto_exposure_cubert(self.acq_ctx, self.proc_ctx)
+            new_exposure, _ = si.auto_exposure_cubert(self.acq_ctx, self.proc_ctx)
             
             # Update the GUI spinbox with the new value
             self.exposure_cb_input.setValue(int(new_exposure))
@@ -242,14 +244,14 @@ class UnifiedCameraGUI(QWidget):
             
             # Run auto exposure for both cameras
             new_tl_exposure = si.auto_exposure_thorlabs(self.cam_tl)
-            new_cb_exposure = si.auto_exposure_cubert(self.acq_ctx, self.proc_ctx)
+            new_cb_exposure, cb_success = si.auto_exposure_cubert(self.acq_ctx, self.proc_ctx)
             
             # Update the GUI spinboxes with the new values
             self.exposure_tl_input.setValue(new_tl_exposure)
             self.exposure_cb_input.setValue(int(new_cb_exposure))
             
             self.update_status("Both exposures set successfully", False)
-            return True
+            return cb_success
         except Exception as e:
             self.update_status(f"Auto exposure failed: {str(e)}", True)
             QMessageBox.warning(self, "Error", f"Auto exposure failed: {str(e)}")
@@ -313,6 +315,13 @@ class UnifiedCameraGUI(QWidget):
         self.interval_input = QLineEdit()
         self.interval_input.setPlaceholderText("Interval (s)")
 
+        self.exposure_center_val = QLineEdit()
+        self.exposure_center_val.setPlaceholderText("ms")
+
+        self.alphebetical_offset_input = QLineEdit()
+        self.alphebetical_offset_input.setPlaceholderText("0")
+        self.alphebetical_offset_input.setText(str(0))
+
         start_btn = QPushButton("Start Auto Capture")
         start_btn.clicked.connect(self.start_auto_capture)
         stop_btn = QPushButton("Stop Auto Capture")
@@ -321,6 +330,8 @@ class UnifiedCameraGUI(QWidget):
         layout.addWidget(self.dataset_input)
         layout.addWidget(choose_dataset_btn)
         layout.addWidget(self.interval_input)
+        layout.addWidget(self.exposure_center_val)
+        layout.addWidget(self.alphebetical_offset_input)
         layout.addWidget(start_btn)
         layout.addWidget(stop_btn)
 
@@ -376,17 +387,21 @@ class UnifiedCameraGUI(QWidget):
 
     def capture_auto_image(self):
 
-        if self.working_on_image:
+        if not self.auto_timer_semph.tryAcquire(1, 500):
+            print("AUTO CAPTURE IS BUSY. TRY AGAIN NEXT TIME")
             return
         
-        self.working_on_image = True
+        self.exposure_cb_input.setValue(int(self.exposure_center_val.text()))
 
         if self.image_window:
-            file_name = get_file_at_alphebetical_index(self.dataset_folder, self.auto_capture_image_index)
+            current_index = self.auto_capture_image_index+int(self.alphebetical_offset_input.text())
+            file_name = get_file_at_alphebetical_index(self.dataset_folder, current_index)
             if not file_name:
                 self.auto_timer.stop()
                 print(f"END OF FILES. IMAGED {self.auto_capture_image_index + 1} FILES")
+                self.auto_timer_semph.release(1)
                 return
+            print(f"ALPHEBETICAL INDEX: {current_index}")
             self.image_window.update_displayed_image(file_name)  
         self.auto_capture_image_index += 1
 
@@ -397,16 +412,16 @@ class UnifiedCameraGUI(QWidget):
             print(f"Auto Expose Attempt {auto_expose_attempts}")
             if auto_expose_attempts >= MAX_AUTO_EXPOSE_ATTEMPTS:
                 print(f"Couldn't find appropriate exposure time! Skipping this file")
+                self.auto_timer_semph.release(1)
                 return
             
         self.capture_manual_image()
 
-        self.working_on_image = False
+        self.auto_timer_semph.release(1)
 
     def start_auto_capture(self):
         try:
             interval = int(self.interval_input.text())
-            self.working_on_image = False
             self.auto_capture_image_index = 0
             self.auto_timer.start(interval * 1000)
             self.update_status("Auto capture started", False)

@@ -375,7 +375,7 @@ def auto_exposure_cubert(acq_ctx, proc_ctx, target_level=0.95, min_exposure=10, 
                     # Update exposure logic
                     if abs(current_level - target_level) < 0.05:
                         print(f"Target reached: Exposure={current_exposure} ms")
-                        return int(current_exposure)
+                        return int(current_exposure), True
 
                     if current_level < target_level:
                         factor = min(2.0, target_level / max(current_level, 0.01))
@@ -400,7 +400,7 @@ def auto_exposure_cubert(acq_ctx, proc_ctx, target_level=0.95, min_exposure=10, 
             break
 
     print(f"(ERROR) Auto exposure incomplete. Final exposure: {current_exposure} ms")
-    return current_exposure
+    return current_exposure, False
 
 
 def setup_pygame_display(X, Y, img_size_x, img_size_y, img_path):
