@@ -2,13 +2,17 @@ import numpy as np
 from skimage import io
 import os
 # === CONFIGURATION ===
-thorlabs_dir = r"C:\Users\menon\Desktop\Walker\20250702\flowers_plants_2\thorlabs\dark_sub"
-cubert_dir = r"C:\Users\menon\Desktop\Walker\20250702\flowers_plants_2\cubert\dark_sub"
-output_dir = r"C:\Users\menon\Desktop\Walker\20250702\flowers_plants_2\processed"
+thorlabs_dir = r"F:\Morales\Training HSI System for Biological Samples\Training HSI System for Biological Samples\ExperimentalData Part2\bronch_08102025\thorlabs\dark_sub"
+cubert_dir = r"F:\Morales\Training HSI System for Biological Samples\Training HSI System for Biological Samples\ExperimentalData Part2\bronch_08102025\cubert\dark_sub"
+output_dir = r"F:\Morales\Training HSI System for Biological Samples\Training HSI System for Biological Samples\ExperimentalData Part2\bronch_08102025\processed"
 # Crop settings (x, y center and box size)
+# TL CORNERS
+# 887,191 | 2333,1160
+# CB CORNERS
+# 43,40 | 363,222
 crop_settings = {
-    'thorlabs': {'pos': (1437, 1370), 'size': 660},
-    'cubert': {'pos': (169, 250), 'size': 120}
+    'thorlabs': {'pos': (1610, 676), 'size': 960},
+    'cubert': {'pos': (203, 131), 'size': 180}
 }
 # === FUNCTION DEFINITIONS ===
 def crop_and_mirror(img, pos, box_size):
