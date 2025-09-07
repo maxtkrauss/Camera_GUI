@@ -3,7 +3,7 @@ import os
 
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QLineEdit, QSlider, QTabWidget, QSpinBox
+    QLabel, QLineEdit, QSlider, QTabWidget, QSpinBox, QScrollArea
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette, QColor, QPixmap, QImage, QPainter, QPen
@@ -106,6 +106,8 @@ class MultiChannelTiffView (QWidget):
             for p in self.postprocessors:
                 p(qp)
 
+            qp.end()
+
             self.view_label.setPixmap(pixmap)
 
     def update_path (self, path):
@@ -115,7 +117,7 @@ class MultiChannelTiffView (QWidget):
     def add_postprocessor (self, p):
         self.postprocessors.append(p)
 
-class ChooseDataSetPage(QWidget):
+class ChooseDataSetWidget(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -134,37 +136,58 @@ class ChooseDataSetPage(QWidget):
 
         self.setLayout(layout)
 
-class CreateDatasetPage():
+class CropSelectionWidget (QWidget):
     def __init__(self):
         super().__init__()
 
-class CompuHSIDataCollection(QWidget):
+        layout = QVBoxLayout()
+
+        size_label = QLabel("Crop Region Size")
+        self.size_slider = QSlider(Qt.Horizontal)
+        self.size_slider.setRange(0, 100)
+        horizontal_offset_label = QLabel("Horizontal Offset")
+        self.horizontal_offset_slider = QSlider(Qt.Horizontal)
+        self.horizontal_offset_slider.setRange(0, 100)
+        vertical_offset_label = QLabel("Vertical Offset")
+        self.vertical_offset_slider = QSlider(Qt.Horizontal)
+        self.vertical_offset_slider.setRange(0, 100)
+        self.tiff_viewer = MultiChannelTiffView(
+            label_text="Cubert Image", 
+            channel_range=(0,105), 
+            format_string="Wavelength: # nm", 
+            discrete_labels=[450 + int((i / 105) * (850 - 450)) for i in range(106)]
+        )
+        self.tiff_viewer.update_path('/home/matthew-morales/Downloads/image_9_cubert.tif')
+
+        layout.addWidget(size_label)
+        layout.addWidget(self.size_slider)
+        layout.addWidget(horizontal_offset_label)
+        layout.addWidget(self.horizontal_offset_slider)
+        layout.addWidget(vertical_offset_label)
+        layout.addWidget(self.vertical_offset_slider)
+        layout.addWidget(self.tiff_viewer)
+
+        self.setLayout(layout)
+
+class CreateDatasetWidget(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("CompuHSI Data Collection")
-        self.setGeometry(100, 100, 1100, 600)
-        self.set_dark_theme()
 
-        self.dataset_folder = None
+        layout = QVBoxLayout()
 
-        # Build GUI
-        self.init_ui()
+        self.im_cropper = CropSelectionWidget()
 
-    def set_dark_theme(self):
-        dark_palette = QPalette()
-        dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
-        dark_palette.setColor(QPalette.WindowText, Qt.red)
-        dark_palette.setColor(QPalette.Base, QColor(25, 25, 25))
-        dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-        dark_palette.setColor(QPalette.ToolTipBase, Qt.red)
-        dark_palette.setColor(QPalette.ToolTipText, Qt.red)
-        dark_palette.setColor(QPalette.Text, Qt.red)
-        dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
-        dark_palette.setColor(QPalette.ButtonText, Qt.red)
-        dark_palette.setColor(QPalette.BrightText, Qt.red)
-        QApplication.setPalette(dark_palette)
+        scroll_area = QScrollArea()
+        scroll_area.setWidget(self.im_cropper)
 
-    def init_ui(self):
+        layout.addWidget(scroll_area)
+        
+        self.setLayout(layout)
+
+class DataCollectionWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+
         layout = QVBoxLayout()
 
         # Folder & dark frame selection
@@ -231,6 +254,8 @@ class CompuHSIDataCollection(QWidget):
         )
         left_layout.addWidget(im_view)
 
+        im_view.update_path('/home/matthew-morales/Downloads/image_9_thorlabs.tif')
+
         gt_view = MultiChannelTiffView(
             label_text="Cubert Image", 
             channel_range=(0,105), 
@@ -238,6 +263,8 @@ class CompuHSIDataCollection(QWidget):
             discrete_labels=[450 + int((i / 105) * (850 - 450)) for i in range(106)]
         )
         right_layout.addWidget(gt_view)
+
+        gt_view.update_path('/home/matthew-morales/Downloads/image_9_cubert.tif')
 
         image_layout.addLayout(left_layout)
         image_layout.addLayout(right_layout)
@@ -275,8 +302,45 @@ class CompuHSIDataCollection(QWidget):
 
         self.auto_tab.setLayout(layout)
 
+
+class MainWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.state = 1
+
+        self.setWindowTitle("CompuHSI Data Collection")
+        self.setGeometry(100, 100, 1100, 600)
+        self.set_dark_theme()
+
+        layout = QVBoxLayout()
+
+        match (self.state):
+            case 0:
+                data_collection_widget = DataCollectionWidget()
+                layout.addWidget(data_collection_widget)
+            case 1:
+                date_creation_widget = CreateDatasetWidget()
+                layout.addWidget(date_creation_widget)
+
+        self.setLayout(layout)
+
+    def set_dark_theme(self):
+        dark_palette = QPalette()
+        dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
+        dark_palette.setColor(QPalette.WindowText, Qt.red)
+        dark_palette.setColor(QPalette.Base, QColor(25, 25, 25))
+        dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+        dark_palette.setColor(QPalette.ToolTipBase, Qt.red)
+        dark_palette.setColor(QPalette.ToolTipText, Qt.red)
+        dark_palette.setColor(QPalette.Text, Qt.red)
+        dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
+        dark_palette.setColor(QPalette.ButtonText, Qt.red)
+        dark_palette.setColor(QPalette.BrightText, Qt.red)
+        QApplication.setPalette(dark_palette)
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    gui = CompuHSIDataCollection()
+    gui = MainWindow()
     gui.show()
     sys.exit(app.exec_())
