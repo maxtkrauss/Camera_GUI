@@ -54,14 +54,15 @@ class StatusIndicator (QWidget):
 class MultiChannelTiffView (QWidget):
     postprocessors = []
 
-    def __init__(self, label_text: str, channel_range: tuple, format_string: str, discrete_labels: list | None=None):
+    def __init__(self, label_text: str, channel_range: tuple, format_string: str, discrete_labels: list | None=None, image_size=500):
         super().__init__()
         
         layout = QVBoxLayout()
 
         self.format_string = format_string
         self.discrete_labels = discrete_labels
-        self.tiff_path = None
+        self.image_size = image_size
+        self.tiff_img = None
 
         self.view_label = QLabel(label_text)
         self.slider_label = QLabel("---")
@@ -88,30 +89,28 @@ class MultiChannelTiffView (QWidget):
         self.slider_label.setText(new_label_text)
 
     def update_image (self):
-            if not self.tiff_path or not os.path.exists(self.tiff_path):
-                return
-
-            img = tifffile.imread(self.tiff_path)
-            if img.ndim == 3:
-                img = img[self.channel_slider.value()]
+            if self.tiff_img.ndim == 3:
+                img = self.tiff_img [self.channel_slider.value()]
             img = np.clip(img, 0, None)
             norm = ((img - img.min()) / max(1e-5, img.max() - img.min()) * 255).astype(np.uint8)
 
             h, w = norm.shape
             qimg = QImage(norm.data, w, h, w, QImage.Format_Grayscale8)
-            pixmap = QPixmap.fromImage(qimg).scaled(500, 500, Qt.KeepAspectRatio)   
+            pixmap = QPixmap.fromImage(qimg).scaled(self.image_size, self.image_size, Qt.KeepAspectRatio)   
 
             qp = QPainter(pixmap)
             
             for p in self.postprocessors:
-                p(qp)
+                p(qp, pixmap.width(), pixmap.height())
 
             qp.end()
 
             self.view_label.setPixmap(pixmap)
 
     def update_path (self, path):
-        self.tiff_path = path 
+        if not path or not os.path.exists(path):
+                return
+        self.tiff_img = tifffile.imread(path)
         self.update_image()
 
     def add_postprocessor (self, p):
@@ -137,7 +136,7 @@ class ChooseDataSetWidget(QWidget):
         self.setLayout(layout)
 
 class CropSelectionWidget (QWidget):
-    def __init__(self):
+    def __init__(self, label_text: str, channel_range: tuple, format_string: str, discrete_labels: list | None=None, image_size: int=500):
         super().__init__()
 
         layout = QVBoxLayout()
@@ -152,12 +151,18 @@ class CropSelectionWidget (QWidget):
         self.vertical_offset_slider = QSlider(Qt.Horizontal)
         self.vertical_offset_slider.setRange(0, 100)
         self.tiff_viewer = MultiChannelTiffView(
-            label_text="Cubert Image", 
-            channel_range=(0,105), 
-            format_string="Wavelength: # nm", 
-            discrete_labels=[450 + int((i / 105) * (850 - 450)) for i in range(106)]
+            label_text=label_text, 
+            channel_range=channel_range, 
+            format_string=format_string, 
+            discrete_labels=discrete_labels,
+            image_size=image_size
         )
         self.tiff_viewer.update_path('/home/matthew-morales/Downloads/image_9_cubert.tif')
+        self.tiff_viewer.add_postprocessor(self._crop_box_drawer)
+
+        self.size_slider.valueChanged.connect(self._on_slider_change)
+        self.vertical_offset_slider.valueChanged.connect(self._on_slider_change)
+        self.horizontal_offset_slider.valueChanged.connect(self._on_slider_change)
 
         layout.addWidget(size_label)
         layout.addWidget(self.size_slider)
@@ -168,6 +173,31 @@ class CropSelectionWidget (QWidget):
         layout.addWidget(self.tiff_viewer)
 
         self.setLayout(layout)
+
+    def get_crop_size_percent(self):
+        return self.size_slider.value()/100.0
+    
+    def get_horizontal_offset_percent(self):
+        return self.horizontal_offset_slider.value()/100.0
+
+    def get_vertical_offset_percent(self):
+        return self.vertical_offset_slider.value()/100.0
+
+    def _on_slider_change (self):
+        self.tiff_viewer.update_image()
+
+    def _crop_box_drawer (self, painter: QPainter, w, h):
+        crop_size_percent = self.get_crop_size_percent()
+        horizontal_offset_percent = self.get_horizontal_offset_percent()
+        vertical_offset_percent = self.get_vertical_offset_percent()
+
+        x = int(horizontal_offset_percent*w)
+        y = int(vertical_offset_percent*h)
+        crop_size = int(crop_size_percent*w)
+    
+        pen = QPen(QColor("red"), 3.0)
+        painter.setPen(pen)
+        painter.drawRect(x, y, crop_size, crop_size)
 
 class CreateDatasetWidget(QWidget):
     def __init__(self):
