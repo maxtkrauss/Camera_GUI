@@ -19,7 +19,10 @@ class CompuHSIDataset:
     gt_crop_offset = (0,0)
     im_crop_size = 660
     im_crop_offset = (0,0)
-    size = 0
+    test_size = 0
+    train_size = 0
+    test_assignment_probability = 20
+
 
 class StatusIndicator (QWidget):
 
@@ -52,19 +55,19 @@ class StatusIndicator (QWidget):
         QApplication.processEvents()  # Force UI update
 
 class MultiChannelTiffView (QWidget):
-    postprocessors = []
-
     def __init__(self, label_text: str, channel_range: tuple, format_string: str, discrete_labels: list | None=None, image_size=500):
         super().__init__()
         
         layout = QVBoxLayout()
 
+        self.postprocessors = []
         self.format_string = format_string
         self.discrete_labels = discrete_labels
         self.image_size = image_size
         self.tiff_img = None
 
         self.view_label = QLabel(label_text)
+        self.view_label.setFixedHeight(image_size)
         self.slider_label = QLabel("---")
         self.channel_slider = QSlider(Qt.Horizontal)
         self.channel_slider.setRange(channel_range[0], channel_range[1])
@@ -144,12 +147,15 @@ class CropSelectionWidget (QWidget):
         size_label = QLabel("Crop Region Size")
         self.size_slider = QSlider(Qt.Horizontal)
         self.size_slider.setRange(0, 100)
+        self.size_slider.setFixedHeight(20)
         horizontal_offset_label = QLabel("Horizontal Offset")
         self.horizontal_offset_slider = QSlider(Qt.Horizontal)
         self.horizontal_offset_slider.setRange(0, 100)
+        self.horizontal_offset_slider.setFixedHeight(20)
         vertical_offset_label = QLabel("Vertical Offset")
         self.vertical_offset_slider = QSlider(Qt.Horizontal)
         self.vertical_offset_slider.setRange(0, 100)
+        self.vertical_offset_slider.setFixedHeight(20)
         self.tiff_viewer = MultiChannelTiffView(
             label_text=label_text, 
             channel_range=channel_range, 
@@ -157,7 +163,6 @@ class CropSelectionWidget (QWidget):
             discrete_labels=discrete_labels,
             image_size=image_size
         )
-        self.tiff_viewer.update_path('/home/matthew-morales/Downloads/image_9_cubert.tif')
         self.tiff_viewer.add_postprocessor(self._crop_box_drawer)
 
         self.size_slider.valueChanged.connect(self._on_slider_change)
@@ -183,6 +188,9 @@ class CropSelectionWidget (QWidget):
     def get_vertical_offset_percent(self):
         return self.vertical_offset_slider.value()/100.0
 
+    def update_path (self, path):
+        self.tiff_viewer.update_path(path)
+
     def _on_slider_change (self):
         self.tiff_viewer.update_image()
 
@@ -204,14 +212,59 @@ class CreateDatasetWidget(QWidget):
         super().__init__()
 
         layout = QVBoxLayout()
+        top_layout = QVBoxLayout()
+        middle_layout = QHBoxLayout()
+        left_layout = QVBoxLayout()
+        right_layout = QVBoxLayout()
+        bottom_layout = QHBoxLayout()
 
-        self.im_cropper = CropSelectionWidget()
+        im_final_size_label = QLabel("Final Size for Originals")
+        self.im_final_size_input = QLineEdit("660")
+        gt_final_size_label = QLabel("Final Size for Ground Truth")
+        self.gt_final_size_input = QLineEdit("120")
 
-        scroll_area = QScrollArea()
-        scroll_area.setWidget(self.im_cropper)
+        self.alignment_aid_button = QPushButton("Show Alignment Aid")
 
-        layout.addWidget(scroll_area)
-        
+        test_assignment_probability_label = QLabel("Test Assignment Probability")
+        self.test_assignment_probability_input = QLineEdit("20")
+
+        self.im_cropper = CropSelectionWidget(
+            label_text="Thorlabs Image", 
+            channel_range=(0,4), 
+            format_string="Polarization: #", 
+            discrete_labels=["0°", "45°", "90°", "135°", "Raw"]
+        )
+        self.gt_cropper = CropSelectionWidget(
+            label_text="Cubert Image", 
+            channel_range=(0,105), 
+            format_string="Wavelength: # nm", 
+            discrete_labels=[450 + int((i / 105) * (850 - 450)) for i in range(106)]
+        )
+
+        self.proceed_button = QPushButton("Proceed to Dark Frame Collection")
+
+        self.im_cropper.update_path('/home/matthew-morales/Downloads/image_9_thorlabs.tif')
+        self.gt_cropper.update_path('/home/matthew-morales/Downloads/image_9_cubert.tif')
+
+        layout.addLayout(top_layout)
+        layout.addLayout(middle_layout)
+        layout.addLayout(bottom_layout)
+
+        top_layout.addWidget(im_final_size_label)
+        top_layout.addWidget(self.im_final_size_input)
+        top_layout.addWidget(gt_final_size_label)
+        top_layout.addWidget(self.gt_final_size_input)
+        top_layout.addWidget(test_assignment_probability_label)
+        top_layout.addWidget(self.test_assignment_probability_input)
+
+        middle_layout.addLayout(left_layout)
+        middle_layout.addLayout(right_layout)
+
+        top_layout.addWidget(self.alignment_aid_button)
+        left_layout.addWidget(self.im_cropper)
+        right_layout.addWidget(self.gt_cropper)
+        bottom_layout.addWidget(self.proceed_button)
+
         self.setLayout(layout)
 
 class DataCollectionWidget(QWidget):
