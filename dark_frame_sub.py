@@ -38,13 +38,13 @@ def process_camera_data(dark_frame_folder, input_folder, output_folder):
 if __name__ == "__main__":
 
     # Define paths for Thorlabs camera
-    thorlabs_dark_frame_folder = r"F:\Morales\Training HSI System for Biological Samples\Training HSI System for Biological Samples\ExperimentalData Part1\dark_frames_08102025\thorlabs"
-    thorlabs_input_folder = r"F:\Morales\Training HSI System for Biological Samples\Training HSI System for Biological Samples\ExperimentalData Part2\bronch_08102025\thorlabs"
+    thorlabs_dark_frame_folder = r"F:\Morales\Training HSI System for Biological Samples\m2caiseg-training\dark_frames_09042025\thorlabs"
+    thorlabs_input_folder = r"F:\Morales\Training HSI System for Biological Samples\m2caiseg-training\session_1_09042025\thorlabs"
     thorlabs_output_folder = os.path.join(thorlabs_input_folder, "dark_sub")
 
     # Define paths for Cubert camera
-    cubert_dark_frame_folder = r"F:\Morales\Training HSI System for Biological Samples\Training HSI System for Biological Samples\ExperimentalData Part1\dark_frames_08102025\cubert"
-    cubert_input_folder = r"F:\Morales\Training HSI System for Biological Samples\Training HSI System for Biological Samples\ExperimentalData Part2\bronch_08102025\cubert"
+    cubert_dark_frame_folder = r"F:\Morales\Training HSI System for Biological Samples\m2caiseg-training\dark_frames_09042025\cubert"
+    cubert_input_folder = r"F:\Morales\Training HSI System for Biological Samples\m2caiseg-training\session_1_09042025\cubert"
     cubert_output_folder = os.path.join(cubert_input_folder, "dark_sub")
 
     # Process data for both cameras

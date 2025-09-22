@@ -2,9 +2,9 @@ import numpy as np
 from skimage import io
 import os
 # === CONFIGURATION ===
-thorlabs_dir = r"F:\Morales\Training HSI System for Biological Samples\Training HSI System for Biological Samples\ExperimentalData Part2\bronch_08102025\thorlabs\dark_sub"
-cubert_dir = r"F:\Morales\Training HSI System for Biological Samples\Training HSI System for Biological Samples\ExperimentalData Part2\bronch_08102025\cubert\dark_sub"
-output_dir = r"F:\Morales\Training HSI System for Biological Samples\Training HSI System for Biological Samples\ExperimentalData Part2\bronch_08102025\processed"
+thorlabs_dir = r"F:\Morales\Training HSI System for Biological Samples\m2caiseg-training\session_1_09042025\thorlabs\dark_sub"
+cubert_dir = r"F:\Morales\Training HSI System for Biological Samples\m2caiseg-training\session_1_09042025\cubert\dark_sub"
+output_dir = r"F:\Morales\Training HSI System for Biological Samples\m2caiseg-training\session_1_09042025\processed"
 # Crop settings (x, y center and box size)
 # TL CORNERS
 # 887,191 | 2333,1160

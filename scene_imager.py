@@ -19,6 +19,7 @@ import pygame
 thorlabs_image_folder = 'example_images//thorlabs'
 cubert_image_folder = 'example_images//cubert'
 display_image_folder = r"E:\NASA_HSI\image_datasets\flickr_dataset\flickr30k_images\flickr30k_images"
+thorlabs_adc_resolution = 10
 
 
 display_x = 1920
@@ -292,7 +293,7 @@ def auto_exposure_thorlabs(cam, target_level=0.95, min_exposure=10, max_exposure
     max_val = np.max(img)
     
     # Use 12-bit saturation value (2^12 - 1)
-    saturation = 4095
+    saturation = (2**thorlabs_adc_resolution) - 1
     
     # Calculate how close we are to saturation (0.0-1.0)
     current_level = max_val / saturation

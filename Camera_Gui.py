@@ -218,7 +218,7 @@ class UnifiedCameraGUI(QWidget):
             return True
         except Exception as e:
             self.update_status(f"Thorlabs exposure failed: {str(e)}", True)
-            QMessageBox.warning(self, "Error", f"Auto exposure failed: {str(e)}")
+            # QMessageBox.warning(self, "Error", f"Auto exposure failed: {str(e)}")
             return False
 
     def auto_expose_cubert(self):
@@ -235,7 +235,7 @@ class UnifiedCameraGUI(QWidget):
             return True
         except Exception as e:
             self.update_status(f"Cubert exposure failed: {str(e)}", True)
-            QMessageBox.warning(self, "Error", f"Auto exposure failed: {str(e)}")
+            # QMessageBox.warning(self, "Error", f"Auto exposure failed: {str(e)}")
             return False
 
     def auto_expose_both(self):
