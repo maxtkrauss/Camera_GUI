@@ -1,0 +1,21 @@
+{
+    "base_dir": "/home/matthew-morales/Downloads/TestDataset",
+    "dark_frame_extension": "dark_frames",
+    "gt_cam_name": "",
+    "gt_crop_offset": [
+        0,
+        0
+    ],
+    "gt_crop_size": 120,
+    "im_cam_name": "",
+    "im_crop_offset": [
+        0,
+        0
+    ],
+    "im_crop_size": 660,
+    "test_assignment_probability": 20,
+    "test_extension": "test",
+    "test_size": 0,
+    "train_extension": "train",
+    "train_size": 0
+}
