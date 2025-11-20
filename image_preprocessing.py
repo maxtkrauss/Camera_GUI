@@ -53,7 +53,7 @@ def set_globals (args):
     global cubert_dir
     cubert_dir = os.path.join(base_dir, r"cubert")
     global output_dir
-    output_dir = os.path.join(base_dir, r"processed")
+    output_dir = args.output_base
     # Crop settings (x, y center and box size)
     # TL CORNERS
     # 887,191 | 2333,1160
@@ -69,6 +69,7 @@ def set_globals (args):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("-i", "--input_base")
+    parser.add_argument("-o", "--output_base")
     parser.add_argument("-xt", "--x_thorlabs", type=int)
     parser.add_argument("-yt", "--y_thorlabs", type=int)
     parser.add_argument("-st", "--size_thorlabs", type=int)
