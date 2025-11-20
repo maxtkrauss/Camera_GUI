@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --account=notchpeak
+#SBATCH --account=menon
 
 #SBATCH --partition=notchpeak
 
