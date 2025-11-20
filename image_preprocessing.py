@@ -1,20 +1,8 @@
 import numpy as np
 from skimage import io
 import os
-# === CONFIGURATION ===
-base_dir = r"F:\Morales\Exp5 - Macbeth and Pokemon Cards\Testing"
-thorlabs_dir = os.path.join(base_dir, r"thorlabs")
-cubert_dir = os.path.join(base_dir, r"cubert")
-output_dir = os.path.join(base_dir, r"processed")
-# Crop settings (x, y center and box size)
-# TL CORNERS
-# 887,191 | 2333,1160
-# CB CORNERS
-# 43,40 | 363,222
-crop_settings = {
-    'thorlabs': {'pos': (0, 0), 'size': 2032},
-    'cubert': {'pos': (57,24), 'size': 352}
-}
+from argparse import ArgumentParser
+
 # === FUNCTION DEFINITIONS ===
 def crop_and_mirror(img, pos, box_size):
     if img.ndim != 3:
@@ -29,6 +17,7 @@ def crop_and_mirror(img, pos, box_size):
     # mirrored = np.flip(cropped, axis=1)  # Flip in Y-direction
     
     return cropped#, mirrored
+
 def process_folder(folder_path, tag):
     processed = []
     pos = crop_settings[tag]['pos']
@@ -52,8 +41,44 @@ def process_folder(folder_path, tag):
             processed.append((cropped))
     
     return processed
+
+def set_globals (args):
+    '''
+    This function is very bad practice! Don't replicate.
+    '''
+    global base_dir
+    base_dir = args.input_base
+    global thorlabs_dir
+    thorlabs_dir = os.path.join(base_dir, r"thorlabs")
+    global cubert_dir
+    cubert_dir = os.path.join(base_dir, r"cubert")
+    global output_dir
+    output_dir = os.path.join(base_dir, r"processed")
+    # Crop settings (x, y center and box size)
+    # TL CORNERS
+    # 887,191 | 2333,1160
+    # CB CORNERS
+    # 43,40 | 363,222
+    global crop_settings
+    crop_settings = {
+        'thorlabs': {'pos': (args.x_thorlabs, args.y_thorlabs), 'size': args.size_thorlabs},
+        'cubert': {'pos': (args.x_cubert, args.y_cubert), 'size': args.size_cubert}
+    }
+
 # === MAIN EXECUTION ===
 if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("-i", "--input_base")
+    parser.add_argument("-xt", "--x_thorlabs", type=int)
+    parser.add_argument("-yt", "--y_thorlabs", type=int)
+    parser.add_argument("-st", "--size_thorlabs", type=int)
+    parser.add_argument("-xc", "--x_cubert", type=int)
+    parser.add_argument("-yc", "--y_cubert", type=int)
+    parser.add_argument("-sc", "--size_cubert", type=int)
+
+    args = parser.parse_args()
+    set_globals(args)
+
     print("Processing Thorlabs images...")
     thorlabs_processed = process_folder(thorlabs_dir, 'thorlabs')
     print("\nProcessing Cubert images...")
