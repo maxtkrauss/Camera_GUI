@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import tifffile as tiff
+from argparse import ArgumentParser
+
 def load_images_from_folder(folder):
     """Load all .tif images from a folder."""
     images = []
@@ -36,17 +38,26 @@ def process_camera_data(dark_frame_folder, input_folder, output_folder):
     subtract_dark_frame_and_save(input_folder, output_folder, dark_frame)
 
 if __name__ == "__main__":
-    input_base_folder = r"F:\Morales\exp3 - Youtube Dataset with 3rd Cam Setup\10162025\captures"
-    dark_frame_base_folder = r"F:\Morales\exp3 - Youtube Dataset with 3rd Cam Setup\10162025\darkframes"
+    parser = ArgumentParser()
+    parser.add_argument("-i", "--input_base")
+    parser.add_argument("-d", "--darkframes")
+    parser.add_argument("-o", "--output_base")
+
+    args = parser.parse_args()
+
+    input_base_folder = args.input_base
+    dark_frame_base_folder = args.darkframes
+    output_base_folder = args.output_base
+
     # Define paths for Thorlabs camera
     thorlabs_dark_frame_folder = os.path.join(dark_frame_base_folder, "thorlabs")
     thorlabs_input_folder = os.path.join(input_base_folder, "thorlabs")
-    thorlabs_output_folder = os.path.join(thorlabs_input_folder, "dark_sub")
+    thorlabs_output_folder = os.path.join(output_base_folder, "thorlabs")
 
     # Define paths for Cubert camera
     cubert_dark_frame_folder = os.path.join(dark_frame_base_folder, "cubert")
     cubert_input_folder = os.path.join(input_base_folder, "cubert")
-    cubert_output_folder = os.path.join(cubert_input_folder, "dark_sub")
+    cubert_output_folder = os.path.join(output_base_folder, "cubert")
 
     # Process data for both cameras
     process_camera_data(thorlabs_dark_frame_folder, thorlabs_input_folder, thorlabs_output_folder)
