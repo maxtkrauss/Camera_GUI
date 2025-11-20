@@ -47,18 +47,12 @@ def apply_reindexing (path, ignorelist=[], index_file='map.json', template="#"):
 # apply_reindexing('./test/thorlabs', ['cubert', 'thorlabs'], 'map.json', template="image_#_thorlabs")
 
 ignorelist = ['cubert', 'thorlabs']
-map_file_train = 'map_train.json'
-map_file_valid = 'map_valid.json'
-basedir = '/scratch/general/nfs1/u1344001/data/EndoDBV1/'
+map_file = 'map_train.json'
+basedir = r"F:\Morales\exp3 - Youtube Dataset with 3rd Cam Setup\10162025\stretched"
 
-source_dir = Path(basedir) / 'training/cubert'
-target_dir = Path(basedir) / 'training/thorlabs'
-generate_reindex_file (source_dir, ignorelist, map_file_train)
-apply_reindexing(source_dir, ignorelist, map_file_train, template="image_#_thorlabs")
-apply_reindexing(target_dir, ignorelist, map_file_train, template="image_#_cubert")
+cubert_dir = Path(basedir) / 'cubert'
+thorlabs_dir = Path(basedir) / 'thorlabs'
+# generate_reindex_file (cubert_dir, ignorelist, map_file)
 
-source_dir = Path(basedir) / 'validation/cubert'
-target_dir = Path(basedir) / 'validation/thorlabs'
-generate_reindex_file (source_dir, ignorelist, map_file_valid)
-apply_reindexing(source_dir, ignorelist, map_file_valid, template="image_#_thorlabs")
-apply_reindexing(target_dir, ignorelist, map_file_valid, template="image_#_cubert")
+apply_reindexing(cubert_dir, ignorelist, map_file, "image_#_cubert")
+apply_reindexing(thorlabs_dir, ignorelist, map_file, "image_#_thorlabs")

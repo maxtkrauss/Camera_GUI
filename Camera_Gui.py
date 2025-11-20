@@ -14,6 +14,17 @@ from PyQt5.QtCore import Qt, QTimer, QSemaphore
 from PyQt5.QtGui import QPixmap, QImage, QPalette, QColor, QPainter
 
 import scene_imager as si
+import logging
+
+# Store the original stdout
+original_stdout = sys.stdout
+
+# Open a file in write mode ('w') or append mode ('a')
+# 'w' will overwrite the file each time, 'a' will append to it
+log_file = open("output.log", "w")
+
+# Redirect sys.stdout to the file
+sys.stdout = log_file
 
 def get_file_at_alphebetical_index (directory, index=0):
     # Get all entries and sort them alphabetically
@@ -50,6 +61,7 @@ class ImageWindow(QMainWindow):
         self.update_displayed_image()
 
     def update_displayed_image(self, file_path=None):
+        print(file_path)
         if file_path:
             self.original_pixmap = QPixmap(file_path)
 

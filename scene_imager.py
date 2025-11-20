@@ -19,7 +19,7 @@ import pygame
 thorlabs_image_folder = 'example_images//thorlabs'
 cubert_image_folder = 'example_images//cubert'
 display_image_folder = r"E:\NASA_HSI\image_datasets\flickr_dataset\flickr30k_images\flickr30k_images"
-thorlabs_adc_resolution = 10
+thorlabs_adc_resolution = 12
 
 
 display_x = 1920

@@ -36,15 +36,16 @@ def process_camera_data(dark_frame_folder, input_folder, output_folder):
     subtract_dark_frame_and_save(input_folder, output_folder, dark_frame)
 
 if __name__ == "__main__":
-
+    input_base_folder = r"F:\Morales\exp3 - Youtube Dataset with 3rd Cam Setup\10162025\captures"
+    dark_frame_base_folder = r"F:\Morales\exp3 - Youtube Dataset with 3rd Cam Setup\10162025\darkframes"
     # Define paths for Thorlabs camera
-    thorlabs_dark_frame_folder = r"F:\Morales\Training HSI System for Biological Samples\m2caiseg-training\dark_frames_09042025\thorlabs"
-    thorlabs_input_folder = r"F:\Morales\Training HSI System for Biological Samples\m2caiseg-training\session_1_09042025\thorlabs"
+    thorlabs_dark_frame_folder = os.path.join(dark_frame_base_folder, "thorlabs")
+    thorlabs_input_folder = os.path.join(input_base_folder, "thorlabs")
     thorlabs_output_folder = os.path.join(thorlabs_input_folder, "dark_sub")
 
     # Define paths for Cubert camera
-    cubert_dark_frame_folder = r"F:\Morales\Training HSI System for Biological Samples\m2caiseg-training\dark_frames_09042025\cubert"
-    cubert_input_folder = r"F:\Morales\Training HSI System for Biological Samples\m2caiseg-training\session_1_09042025\cubert"
+    cubert_dark_frame_folder = os.path.join(dark_frame_base_folder, "cubert")
+    cubert_input_folder = os.path.join(input_base_folder, "cubert")
     cubert_output_folder = os.path.join(cubert_input_folder, "dark_sub")
 
     # Process data for both cameras
