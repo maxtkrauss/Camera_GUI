@@ -8,11 +8,11 @@
 
 ##SBATCH --ntasks-per-node=1
 
-##SBATCH --cpus-per-task=4
+##SBATCH --cpus-per-task=1
 
 #SBATCH --mem=32G
 
-#SBATCH --time=48:00:00
+#SBATCH --time=12:00:00
 
 #SBATCH --job-name=morales-colorchart-preprocessing-11202025
 
@@ -22,17 +22,12 @@
 
 #SBATCH --mail-user=u1344001@umail.utah.edu
 
-script preprocessing.log
-
 ## Load Miniforge
 module load miniforge3/24.9.0
-
 
 ## Activate the conda environment
 
 source activate /uufs/chpc.utah.edu/common/home/u1344001/BICEPS_HSI_2025/hsp_env
-
-
 
 ## Navigate to the project directory
 
