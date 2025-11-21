@@ -41,7 +41,7 @@ darkframe_dir=/scratch/general/nfs1/u1344001/data/Exp7/darkframes
 
 ## Run the dark frame subtraction script
 
-python dark_frame_sub.py -i "$raw_dir%" -o "$dark_sub_dir" -d "$dark_frame_dir"
+python dark_frame_sub.py -i "$raw_dir" -o "$dark_sub_dir" -d "$darkframe_dir"
 
 ## Run the cropping script
 python image_preprocessing.py -i "$dark_sub_dir" -xt 0 -yt 0 -st 2032 -xc 57 -yc 24 -sc 352 -o "$processed_dir"
