@@ -14,12 +14,10 @@ def crop_and_mirror(img, pos, box_size):
     y_min, y_max = max(0, cy), min(y, cy + box_size)
     
     cropped = img[:, y_min:y_max, x_min:x_max]
-    # mirrored = np.flip(cropped, axis=1)  # Flip in Y-direction
     
-    return cropped#, mirrored
+    return cropped
 
 def process_folder(folder_path, tag):
-    processed = []
     pos = crop_settings[tag]['pos']
     size = crop_settings[tag]['size']
     # Create tag-specific output subdirectory
@@ -33,15 +31,9 @@ def process_folder(folder_path, tag):
             cropped = crop_and_mirror(img, pos, size)
             base = os.path.splitext(fname)[0]
             cropped_path = os.path.join(tag_output_dir, f"{base}_{tag}_cropped.tif")
-            # mirrored_path = os.path.join(tag_output_dir, f"{base}_{tag}.tif")
-            # io.imsave(cropped_path, cropped.astype(np.uint16))
             io.imsave(cropped_path, cropped.astype(np.uint16))
-            # print(f"Saved: {cropped_path}")
             print(f"Saved: {cropped_path}")
-            processed.append((cropped))
     
-    return processed
-
 def set_globals (args):
     '''
     This function is very bad practice! Don't replicate.
@@ -81,7 +73,7 @@ if __name__ == "__main__":
     set_globals(args)
 
     print("Processing Thorlabs images...")
-    thorlabs_processed = process_folder(thorlabs_dir, 'thorlabs')
+    process_folder(thorlabs_dir, 'thorlabs')
     print("\nProcessing Cubert images...")
-    cubert_processed = process_folder(cubert_dir, 'cubert')
+    process_folder(cubert_dir, 'cubert')
     print("\nAll images processed and saved.")
