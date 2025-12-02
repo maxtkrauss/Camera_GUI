@@ -36,7 +36,7 @@ def rotate_tiff_image(image_path, angle_degrees, save_path=None):
     if save_path:
         tifffile.imwrite(save_path, rotated_image)
 
-    return rotated_image
+    rotated_image = None
 
 def rotate_png_image(image_path, angle_degrees, save_path=None):
     """
@@ -70,7 +70,7 @@ def rotate_png_image(image_path, angle_degrees, save_path=None):
         rotated_image = Image.fromarray(rotated_array)
         rotated_image.save(save_path)
 
-    return rotated_array
+    rotated_image = None
 
 def get_rotate_func (ext):
     if ext == '.tif':
