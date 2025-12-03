@@ -64,14 +64,15 @@ data_dir=/scratch/general/nfs1/u1344001/data
 
 chicken_dir=$data_dir/Exp6
 turkey_dir=$data_dir/Exp8
-beef_pork_dir=$data_dir/Exp9
+beef_pork_dir=$data_dir/Exp9        
 consolidate_dir=$data_dir/MeatyDB
 
 
-preprocess $chicken_dir ck_ $consolidate_dir
-preprocess $turkey_dir tk_ $consolidate_dir
-preprocess $beef_pork_dir bp_ $consolidate_dir
+# preprocess $chicken_dir ck_ $consolidate_dir
+# preprocess $turkey_dir tk_ $consolidate_dir
+# preprocess $beef_pork_dir bp_ $consolidate_dir
 
-python data_stretch.py $consolidate_dir $consolidate_dir 9 31415 .tif
+python data_stretch.py $consolidate_dir/cubert $consolidate_dir/cubert 9 31415 .tif
+python data_stretch.py $consolidate_dir/thorlabs $consolidate_dir/thorlabs 9 31415 .tif
 
 python reindex.py $consolidate_dir
