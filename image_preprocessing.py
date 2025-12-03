@@ -17,7 +17,6 @@ def crop_and_mirror(img, pos, box_size):
     
     return cropped
 
-@profile
 def process_folder(folder_path, tag):
     pos = crop_settings[tag]['pos']
     size = crop_settings[tag]['size']
