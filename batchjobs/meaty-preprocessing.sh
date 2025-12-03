@@ -24,16 +24,16 @@
 
 #SBATCH --mail-user=u1344001@umail.utah.edu
 
-## Load Miniforge
-# module load miniforge3/24.9.0
+# Load Miniforge
+module load miniforge3/24.9.0
 
-# ## Activate the conda environment
+## Activate the conda environment
 
-# source activate /uufs/chpc.utah.edu/common/home/u1344001/BICEPS_HSI_2025/hsp_env
+source activate /uufs/chpc.utah.edu/common/home/u1344001/BICEPS_HSI_2025/hsp_env
 
-# ## Navigate to the project directory
+## Navigate to the project directory
 
-# cd /uufs/chpc.utah.edu/common/home/u1344001/BICEPS_HSI_2025/Camera_GUI
+cd /uufs/chpc.utah.edu/common/home/u1344001/BICEPS_HSI_2025/Camera_GUI
 
 preprocess () {
     # 1: Raw dir
