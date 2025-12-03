@@ -2,7 +2,6 @@ import numpy as np
 from skimage import io
 import os
 from argparse import ArgumentParser
-from memory_profiler import profile
 
 # === FUNCTION DEFINITIONS ===
 def crop_and_mirror(img, pos, box_size):

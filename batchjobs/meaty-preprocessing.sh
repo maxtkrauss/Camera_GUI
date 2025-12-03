@@ -47,8 +47,8 @@ preprocess () {
 
     echo $1 $2
 
-    ## Run the dark frame subtraction script
-    python dark_frame_sub.py -i "$raw_dir" -o "$sub_dir" -d "$dark_dir"
+    # ## Run the dark frame subtraction script
+    # python dark_frame_sub.py -i "$raw_dir" -o "$sub_dir" -d "$dark_dir"
 
     ## Run the cropping script
     python image_preprocessing.py -i "$sub_dir" -xt 0 -yt 0 -st 2032 -xc 57 -yc 24 -sc 352 -o "$processed_dir"
@@ -56,8 +56,8 @@ preprocess () {
     ## Add a prefix to the files to make it easier to consolidate
     python add_prefix.py $2 $processed_dir/cubert $processed_dir/thorlabs
 
-    cp $processed_dir/cubert/\*.tif $3/cubert
-    cp $processed_dir/thorlabs/\*.tif $3/thorlabs
+    cp -a $processed_dir/cubert/ $3/cubert
+    cp -a $processed_dir/thorlabs/ $3/thorlabs
 }
 
 data_dir=/scratch/general/nfs1/u1344001/data
