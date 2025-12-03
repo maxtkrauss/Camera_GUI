@@ -4,6 +4,7 @@
 #   Prompt 1: write a python script which appends a prefix to all files in a list of dirs
 
 import os
+from sys import argv
 
 def add_prefix_to_files(directories, prefix):
     """
@@ -36,8 +37,5 @@ def add_prefix_to_files(directories, prefix):
 
 # Example usage:
 if __name__ == "__main__":
-    dirs = [
-        "/path/to/first/dir",
-        "/path/to/second/dir"
-    ]
-    add_prefix_to_files(dirs, "PREFIX_")
+    dirs = argv[2:]
+    add_prefix_to_files(dirs, argv[1])
