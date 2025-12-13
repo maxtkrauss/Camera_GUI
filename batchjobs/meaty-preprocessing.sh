@@ -1,28 +1,28 @@
-#!/bin/bash
+    #!/bin/bash
 
-#SBATCH --account=menon
+    #SBATCH --account=menon
 
-#SBATCH --partition=notchpeak
+    #SBATCH --partition=notchpeak
 
-#SBATCH --nodes=1
+    #SBATCH --nodes=1
 
-##SBATCH --ntasks-per-node=1
+    ##SBATCH --ntasks-per-node=1
 
-##SBATCH --cpus-per-task=1
+    ##SBATCH --cpus-per-task=1
 
-#SBATCH --mem=16G
+    #SBATCH --mem=16G
 
-#SBATCH --time=12:00:00
+    #SBATCH --time=12:00:00
 
-#SBATCH --job-name=morales-meat-preprocessing-12022025
+    #SBATCH --job-name=morales-meat-preprocessing-12022025
 
-#SBATCH -o meat-slurmjob-%j.out-%N
+    #SBATCH -o meat-slurmjob-%j.out-%N
 
-#SBATCH -e meat-slurmjob-%j.error-%N
+    #SBATCH -e meat-slurmjob-%j.error-%N
 
-#SBATCH --mail-type=FAIL,BEGIN,END
+    #SBATCH --mail-type=FAIL,BEGIN,END
 
-#SBATCH --mail-user=u1344001@umail.utah.edu
+    #SBATCH --mail-user=u1344001@umail.utah.edu
 
 # Load Miniforge
 module load miniforge3/24.9.0

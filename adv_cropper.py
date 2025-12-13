@@ -10,7 +10,7 @@ from PyQt5.QtGui import QColor, QPixmap, QImage, QPainter, QPen, QPalette
 import tifffile
 import numpy as np
 
-GT_IMAGE_PATH = r"F:\Morales\Exp7 - Macbeth LCD\scratch\cubert\image_0_cubert.tif"
+GT_IMAGE_PATH = r"/home/matthew-morales/LabelStudioData/MeatSegmentation/train/ground-truth/zc8lhAPcBihfYvNq.tif"
 GS_IMAGE_PATH = r"F:\Morales\Exp7 - Macbeth LCD\scratch\thorlabs\image_0_thorlabs.tif"
 
 class MultiChannelTiffView (QWidget):
